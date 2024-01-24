@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+        body {
+            position: relative;
+        }
+
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        #loading-message {
+            color: white;
+            font-size: 24px;
+        }
+
+        form {
+            width: 640px;
+            margin: 200px auto;
+            text-align: left;
+        }
+
+        input {
+            width: 640px;
+        }
+
+        .buttons {
+            text-align: center;
+            width: 640px;
+            height: 500;
+        }
+
+        button {
+            width: 200px;
+            height: 50px;
+            font-size: larger;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div id="overlay">
+        <div id="loading-message">请稍等···</div>
+    </div>
+
+    <form id="myFrom">
+        <label for="secret_key">密钥</label><input type="text" id="secret_key" name="secret_key">
+        <br><br>
+        <label for="user_url">链接</label><input type="url" id="user_url" name="user_url">
+        <br><br>
+        <label for="all_url">显示全部</label>
+        <br>
+        <textarea id="all_url" rows="5" cols="87"></textarea>
+        <br><br>
+        <button type="submit" id="add_url" name="add_url">添加</button>
+        <button type="submit" id="del_url" name="del_url">删除</button>
+        <button type="submit" id="show_all" name="show_all">显示全部</button>
+        <button type="submit" id="run_shell" name="run_shell">启动脚本</button>
+        <button type="submit" id="kill_baohuo" name="kill_baohuo">结束保活</button>
+        <button type="submit" id="status_baohuo" name="status_baohuo">查看保活状态</button>
+    </form>
+
+<script>
+    document.getElementById("myFrom").addEventListener("submit", function (event) {
+        event.preventDefault();
+        var overlay = document.getElementById("overlay");
+        var secretKey = document.getElementById("secret_key").value.trim();
+        var userUrl = document.getElementById("user_url").value.trim();
+
+        overlay.style.display = "flex";
+
+        // 规则1: 检查 "/add_url" 路由
+        if (event.submitter.name === "add_url") {
+            if (!secretKey || !userUrl || userUrl.endsWith("/") || !secretKey.trim()) {
+                alert("请填写有效的密钥和URL。URL不能以'/'结尾");
+                overlay.style.display = "none";
+                return false;
+            }
+
+            fetch("/add_url", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    secret_key: secretKey,
+                    user_url: userUrl,
+                }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                })
+                .catch(error => {
+                    console.error("错误:", error);
+                })
+                .finally(() => {
+                    overlay.style.display = "none";
+                });
+
+            return false;
+        } 
+        // 规则2: 检查 "/del_url" 路由
+        else if (event.submitter.name === "del_url") {
+            if (!secretKey || !userUrl || userUrl.endsWith("/") || !secretKey.trim()) {
+                alert("请填写有效的密钥和URL。URL不能以'/'结尾");
+                overlay.style.display = "none";
+                return false;
+            }
+
+            fetch("/del_url", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    secret_key: secretKey,
+                    user_url: userUrl,
+                }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                })
+                .catch(error => {
+                    console.error("错误:", error);
+                })
+                .finally(() => {
+                    overlay.style.display = "none";
+                });
+
+            return false;
+        } 
+        // 规则3: 检查 "/show_all" 路由
+        else if (event.submitter.name === "show_all") {
+            if (!secretKey.trim()) {
+                alert("密钥不能为空。");
+                overlay.style.display = "none";
+                return false;
+            }
+
+            fetch("/show_all", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    secret_key: secretKey,
+                    user_url: userUrl,
+                }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    document.querySelector("#all_url").value = `${data.message}`;
+                })
+                .catch(error => {
+                    console.error("错误:", error);
+                })
+                .finally(() => {
+                    overlay.style.display = "none";
+                });
+
+            return false;
+        } 
+        // 规则4: 检查 "/run_shell" 路由
+        else if (event.submitter.name === "run_shell") {
+            if (!secretKey.trim()) {
+                alert("密钥不能为空。");
+                overlay.style.display = "none";
+                return false;
+            }
+
+            fetch("/run_shell", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    secret_key: secretKey,
+                    user_url: userUrl,
+                }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                })
+                .catch(error => {
+                    console.error("错误:", error);
+                })
+                .finally(() => {
+                    overlay.style.display = "none";
+                });
+
+            return false;
+        } else if (event.submitter.name === "kill_baohuo") {
+            if (!secretKey.trim()) {
+                alert("密钥不能为空。");
+                overlay.style.display = "none";
+                return false;
+            }
+
+            fetch("/kill_baohuo", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    secret_key: secretKey,
+                    user_url: userUrl,
+                }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                })
+                .catch(error => {
+                    console.error("错误:", error);
+                })
+                .finally(() => {
+                    overlay.style.display = "none";
+                });
+
+            return false;
+        } else if (event.submitter.name === "status_baohuo") {
+            if (!secretKey.trim()) {
+                alert("密钥不能为空。");
+                overlay.style.display = "none";
+                return false;
+            }
+
+            fetch("/status_baohuo", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    secret_key: secretKey,
+                    user_url: userUrl,
+                }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                })
+                .catch(error => {
+                    console.error("错误:", error);
+                })
+                .finally(() => {
+                    overlay.style.display = "none";
+                });
+
+            return false;
+        }
+    });
+</script>
+
+
+
+</body>
+
+</html>
